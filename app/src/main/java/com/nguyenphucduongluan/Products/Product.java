@@ -1,46 +1,59 @@
 package com.nguyenphucduongluan.Products;
 
-public class Product {
-String bookName, bookScript;
-double bookPrice;
-int bookThumb;
+import android.graphics.Bitmap;
 
-    public String getBookName() {
-        return bookName;
+public class Product { int productCode;
+String productName;
+String productScript;
+double productPrice;
+Bitmap productThumb;
+
+    public int getProductCode() {
+        return productCode;
     }
 
-    public void setBookName(String bookName) {
-        this.bookName = bookName;
+    public void setProductCode(int productCode) {
+        this.productCode = productCode;
     }
 
-    public String getBookScript() {
-        return bookScript;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setBookScript(String bookScript) {
-        this.bookScript = bookScript;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
-    public double getBookPrice() {
-        return bookPrice;
+    public String getProductScript() {
+        return productScript;
     }
 
-    public void setBookPrice(double bookPrice) {
-        this.bookPrice = bookPrice;
+    public void setProductScript(String productScript) {
+        this.productScript = productScript;
     }
 
-    public int getBookThumb() {
-        return bookThumb;
+    public double getProductPrice() {
+        return productPrice;
     }
 
-    public void setBookThumb(int bookThumb) {
-        this.bookThumb = bookThumb;
+    public void setProductPrice(double productPrice) {
+        this.productPrice = productPrice;
     }
 
-    public Product(String bookName, String bookScript, double bookPrice, int bookThumb) {
-        this.bookName = bookName;
-        this.bookScript = bookScript;
-        this.bookPrice = bookPrice;
-        this.bookThumb = bookThumb;
+    public Bitmap getProductThumb() {
+        return productThumb;
+    }
+
+    public void setProductThumb(Bitmap productThumb) {
+        this.productThumb = productThumb;
+    }
+
+    public Product(int productCode, String productName, String productScript, double productPrice, Bitmap productThumb) {
+        this.productCode = productCode;
+        this.productName = productName;
+        this.productScript = productScript;
+        this.productPrice = productPrice;
+        this.productThumb = productThumb;
     }
 }
+
