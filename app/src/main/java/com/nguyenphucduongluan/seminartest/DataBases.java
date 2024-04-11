@@ -45,7 +45,7 @@ public class DataBases extends SQLiteOpenHelper {
     }
     //Thực hiện câu lệnh insert, update, delete
 
-    public boolean execSql(String sql, double price, String description, byte[] image){
+    public boolean execSql(String sql){
         SQLiteDatabase db = getWritableDatabase();
         try {
             db.execSQL(sql);

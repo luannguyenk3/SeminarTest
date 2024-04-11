@@ -2,7 +2,9 @@ package com.nguyenphucduongluan.Products;
 
 import android.graphics.Bitmap;
 
-public class Product { int productCode;
+import java.io.Serializable;
+
+public class Product implements Serializable { int productCode;
 String productName;
 String productScript;
 double productPrice;

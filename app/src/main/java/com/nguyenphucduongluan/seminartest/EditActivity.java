@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,24 +16,25 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.nguyenphucduongluan.seminartest.databinding.ActivityAddBinding;
+import com.nguyenphucduongluan.Products.Product;
+import com.nguyenphucduongluan.seminartest.databinding.ActivityEditBinding;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class AddActivity extends AppCompatActivity {
-    ActivityAddBinding binding;
+public class EditActivity extends AppCompatActivity {
+    ActivityEditBinding binding;
+    Product p;
+    DataBases databases;
     ActivityResultLauncher<Intent> activityResultLauncher;
     boolean openCam;
-    DataBases databases;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAddBinding.inflate(getLayoutInflater());
+        binding = ActivityEditBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        databases = new DataBases(this);
-
+        getData();
         addEvents();
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -51,7 +52,33 @@ public class AddActivity extends AppCompatActivity {
                 }
             }
         });
+        databases = new DataBases(this);
     }
+
+    private void getData() {
+        Bitmap bitmap = null;
+        String imagePath = getIntent().getStringExtra("imagePath");
+        if (imagePath != null) {
+            bitmap = BitmapFactory.decodeFile(imagePath);
+            // Sử dụng bitmap ở đây
+        } else {
+            Toast.makeText(this, "Null", Toast.LENGTH_SHORT).show();
+        }
+
+
+
+        String name = getIntent().getStringExtra("name");
+        double price = getIntent().getDoubleExtra("price", 0.0);
+        String description = getIntent().getStringExtra("description");
+        int code = getIntent().getIntExtra("code", -1);
+
+        binding.edtName.setText(name);
+        binding.edtPrice.setText(String.valueOf(price));
+        binding.edtDecript.setText(description);
+        binding.imvImage.setImageBitmap(bitmap);
+        p = new Product(code, name, description, price, bitmap);
+    }
+
 
     private void addEvents() {
         binding.imvCamera.setOnClickListener(new View.OnClickListener() {
@@ -70,28 +97,10 @@ public class AddActivity extends AppCompatActivity {
                 activityResultLauncher.launch(intent);
             }
         });
-        binding.btnSave.setOnClickListener(new View.OnClickListener() {
+        binding.btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Chuyển đổi hình ảnh từ ImageView thành mảng byte
-                byte[] imageBytes = imageViewToByteArray(binding.imvImage);
-
-                // Tiến hành lưu dữ liệu vào cơ sở dữ liệu
-                ContentValues values = new ContentValues();
-                values.put(DataBases.COL_NAME, binding.edtName.getText().toString());
-                values.put(DataBases.COL_PRICE, Double.parseDouble(binding.edtPrice.getText().toString()));
-                values.put(DataBases.COL_DESCRIPTION, binding.edtDecript.getText().toString());
-                values.put(DataBases.COL_PIC, imageBytes); // Đây là cột lưu trữ hình ảnh
-
-                long numbrow = databases.getWritableDatabase().insert(DataBases.TBL_NAME, null, values);
-                if (numbrow > 0) {
-                    Toast.makeText(AddActivity.this, "Success", Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_OK);
-                    finish();
-                } else {
-                    Toast.makeText(AddActivity.this, "Fail", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
+                updateData();
             }
         });
         binding.btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -102,11 +111,32 @@ public class AddActivity extends AppCompatActivity {
         });
     }
 
-    // Phương thức để chuyển đổi ImageView thành mảng byte
+    private void updateData() {
+        byte[] imageBytes = imageViewToByteArray(binding.imvImage);
+        ContentValues values = new ContentValues();
+        values.put(DataBases.COL_NAME, binding.edtName.getText().toString());
+        values.put(DataBases.COL_PRICE, Double.parseDouble(binding.edtPrice.getText().toString()));
+        values.put(DataBases.COL_DESCRIPTION, binding.edtDecript.getText().toString());
+        values.put(DataBases.COL_PIC, imageBytes);
+
+        if (p != null) {
+            int rowsAffected = databases.getWritableDatabase().update(DataBases.TBL_NAME, values, DataBases.COL_CODE + " = ?", new String[]{String.valueOf(p.getProductCode())});
+            if (rowsAffected > 0) {
+                Toast.makeText(this, "Update successful", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+            } else {
+                Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show();
+            }
+            finish();
+        } else {
+            Toast.makeText(this, "No product data to update", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private byte[] imageViewToByteArray(ImageView imageView) {
         Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(CompressFormat.PNG, 100, stream);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
 }
